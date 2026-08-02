@@ -1,0 +1,20 @@
+# This file tracks properties of this Flutter project.
+# Used by Flutter tool to assess capabilities and perform upgrades etc.
+#
+# This file should be version controlled.
+
+version:
+  revision: 85c72147318ff2ebde935a8f4c2c524cd1dbfcbc
+  channel: stable
+
+project_type: app
+
+# Tracks generation fallback options.
+migration:
+  platforms:
+    - platform: root
+      create_revision: 85c72147318ff2ebde935a8f4c2c524cd1dbfcbc
+      base_revision: 85c72147318ff2ebde935a8f4c2c524cd1dbfcbc
+    - platform: web
+      create_revision: 85c72147318ff2ebde935a8f4c2c524cd1dbfcbc
+      base_revision: 85c72147318ff2ebde935a8f4c2c524cd1dbfcbc
