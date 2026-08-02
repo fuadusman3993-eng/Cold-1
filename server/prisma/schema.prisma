@@ -8,11 +8,173 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(uuid())
-  phone             String   @unique
+  id                String    @id @default(uuid())
+  phone             String?   @unique
+  email             String?   @unique
   fullName          String?
-  role              String   @default("buyer")
-  isProfileComplete Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  avatarUrl         String?
+  role              UserRole  @default(BUYER)
+  isProfileComplete Boolean   @default(false)
+  isVerified        Boolean   @default(false)
+  city              String?
+  language          String    @default("en")
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  listings          Listing[]
+  sentMessages      Message[] @relation("SentMessages")
+  chatsAsUser1      Chat[]    @relation("User1")
+  chatsAsUser2      Chat[]    @relation("User2")
+  offers            Offer[]   @relation("BuyerOffers")
+  favorites         Favorite[]
+  savedSearches     SavedSearch[]
+  dealerProfile     DealerProfile?
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  DEALER
+  ADMIN
+  MODERATOR
+}
+
+model Listing {
+  id           String        @id @default(uuid())
+  sellerId     String
+  seller       User          @relation(fields: [sellerId], references: [id])
+  make         String
+  model        String
+  year         Int
+  price        Float
+  mileage      Int
+  transmission String
+  fuelType     String
+  bodyType     String
+  condition    String
+  color        String?
+  description  String        @db.Text
+  location     String
+  latitude     Float?
+  longitude    Float?
+  isVerified   Boolean       @default(false)
+  isFeatured   Boolean       @default(false)
+  isPaused     Boolean       @default(false)
+  isSold       Boolean       @default(false)
+  viewCount    Int           @default(0)
+  status       ListingStatus @default(ACTIVE)
+  expiresAt    DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  images       ListingImage[]
+  offers       Offer[]
+  favorites    Favorite[]
+  chats        Chat[]
+}
+
+enum ListingStatus {
+  ACTIVE
+  PAUSED
+  SOLD
+  EXPIRED
+  DRAFT
+  UNDER_REVIEW
+}
+
+model ListingImage {
+  id        String   @id @default(uuid())
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  url       String
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Offer {
+  id         String      @id @default(uuid())
+  listingId  String
+  listing    Listing     @relation(fields: [listingId], references: [id])
+  buyerId    String
+  buyer      User        @relation("BuyerOffers", fields: [buyerId], references: [id])
+  amount     Float
+  message    String?
+  status     OfferStatus @default(PENDING)
+  expiresAt  DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  COUNTERED
+  EXPIRED
+  WITHDRAWN
+}
+
+model Chat {
+  id        String    @id @default(uuid())
+  listingId String
+  listing   Listing   @relation(fields: [listingId], references: [id])
+  user1Id   String
+  user1     User      @relation("User1", fields: [user1Id], references: [id])
+  user2Id   String
+  user2     User      @relation("User2", fields: [user2Id], references: [id])
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  messages  Message[]
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  chatId    String
+  chat      Chat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User     @relation("SentMessages", fields: [senderId], references: [id])
+  text      String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  listingId String
+  listing   Listing  @relation(fields: [listingId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@unique([userId, listingId])
+}
+
+model SavedSearch {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  filters   Json
+  createdAt DateTime @default(now())
+}
+
+model DealerProfile {
+  id              String   @id @default(uuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  businessName    String
+  slug            String   @unique
+  businessLicense String?
+  tinNumber       String?
+  address         String?
+  phone           String?
+  website         String?
+  about           String?  @db.Text
+  logoUrl         String?
+  bannerUrl       String?
+  isVerified      Boolean  @default(false)
+  rating          Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
