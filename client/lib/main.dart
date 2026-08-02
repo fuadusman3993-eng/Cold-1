@@ -1,5 +1,6 @@
-import 'package:flutter/material.';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'features/auth/presentation/pages/login_page.dart';
 
 void main() {
   runApp(const EthioDriveApp());
@@ -27,14 +28,7 @@ class EthioDriveApp extends StatelessWidget {
         ),
         useMaterial3: true,
       ),
-      home: const Scaffold(
-        body: Center(
-          child: Text(
-            'EthioDrive MVP',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFD4AF37)),
-          ),
-        ),
-      ),
+      home: const LoginPage(),
     );
   }
 }
