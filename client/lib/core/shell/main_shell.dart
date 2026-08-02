@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import '../theme/app_colors.dart';
+import 'package:ethiodrive/core/theme/app_colors.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -24,14 +24,8 @@ class MainShell extends StatelessWidget {
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.bgSecondary,
-          border: Border(top: BorderSide(color: AppColors.borderSubtle)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.3),
-              blurRadius: 20,
-              offset: const Offset(0, -5),
-            ),
-          ],
+          border: const Border(top: BorderSide(color: AppColors.borderSubtle)),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, -5))],
         ),
         child: SafeArea(
           child: SizedBox(
@@ -59,10 +53,7 @@ class _NavItem extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const _NavItem({
-    required this.icon, required this.activeIcon,
-    required this.label, required this.isActive, required this.onTap,
-  });
+  const _NavItem({required this.icon, required this.activeIcon, required this.label, required this.isActive, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -73,29 +64,11 @@ class _NavItem extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: isActive ? AppColors.goldPrimary : AppColors.textTertiary,
-              size: 24,
-            ),
+            Icon(isActive ? activeIcon : icon, color: isActive ? AppColors.goldPrimary : AppColors.textTertiary, size: 24),
             const SizedBox(height: 2),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 10,
-                color: isActive ? AppColors.goldPrimary : AppColors.textTertiary,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
+            Text(label, style: TextStyle(fontSize: 10, color: isActive ? AppColors.goldPrimary : AppColors.textTertiary, fontWeight: isActive ? FontWeight.w600 : FontWeight.w400)),
             if (isActive)
-              Container(
-                margin: const EdgeInsets.only(top: 2),
-                width: 4, height: 4,
-                decoration: const BoxDecoration(
-                  color: AppColors.goldPrimary,
-                  shape: BoxShape.circle,
-                ),
-              ),
+              Container(margin: const EdgeInsets.only(top: 2), width: 4, height: 4, decoration: const BoxDecoration(color: AppColors.goldPrimary, shape: BoxShape.circle)),
           ],
         ),
       ),
@@ -118,13 +91,7 @@ class _PostButton extends StatelessWidget {
           children: [
             Container(
               width: 48, height: 48,
-              decoration: const BoxDecoration(
-                gradient: AppColors.goldGradient,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(color: AppColors.goldShimmer, blurRadius: 12, spreadRadius: 2),
-                ],
-              ),
+              decoration: const BoxDecoration(gradient: AppColors.goldGradient, shape: BoxShape.circle),
               child: const Icon(Icons.add, color: AppColors.textInverse, size: 26),
             ),
           ],

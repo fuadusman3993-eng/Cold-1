@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/theme/app_colors.dart';
-import '../../../../core/theme/app_spacing.dart';
-import '../../../listing/domain/models/listing_model.dart';
 import 'package:go_router/go_router.dart';
+import 'package:ethiodrive/core/theme/app_colors.dart';
+import 'package:ethiodrive/core/theme/app_spacing.dart';
+import 'package:ethiodrive/features/listing/domain/models/listing_model.dart';
 
 class ListingCard extends StatefulWidget {
   final ListingModel listing;
