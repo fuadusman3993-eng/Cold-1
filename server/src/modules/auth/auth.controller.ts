@@ -1,36 +1,38 @@
-import { Controller, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, UseGuards, Request } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Length } from 'class-validator';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
 
-class SendOtpDto {
-  @IsString() @IsNotEmpty()
-  phone: string;
-}
-
-class VerifyOtpDto {
-  @IsString() @IsNotEmpty()
-  phone: string;
-  @IsString() @Length(6, 6)
-  otp: string;
-}
-
-@ApiTags('auth')
-@Controller('api/v1/auth')
+@ApiTags('Auth')
+@Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private authService: AuthService) {}
 
   @Post('send-otp')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Send OTP to phone number' })
-  sendOtp(@Body() dto: SendOtpDto) {
-    return this.authService.sendOtp(dto.phone);
+  sendOtp(@Body() body: { phone: string }) {
+    return this.authService.sendOtp(body.phone);
   }
 
-  @Post('login/phone')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login with phone and OTP' })
-  login(@Body() dto: VerifyOtpDto) {
-    return this.authService.loginWithPhone(dto.phone, dto.otp);
+  @Post('verify-otp')
+  @ApiOperation({ summary: 'Verify OTP and login/register' })
+  verifyOtp(@Body() body: { phone: string; otp: string }) {
+    return this.authService.verifyOtp(body.phone, body.otp);
+  }
+
+  @Post('refresh')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Refresh access token' })
+  refresh(@Request() req: any) {
+    return this.authService.refreshToken(req.user.sub);
+  }
+
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current authenticated user' })
+  getMe(@Request() req: any) {
+    return this.authService.getMe(req.user.sub);
   }
 }
