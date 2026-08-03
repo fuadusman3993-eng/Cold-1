@@ -17,13 +17,15 @@ import '../bloc/home_cubit.dart';
 // ─── Categories ──────────────────────────────────────────────────────────────
 
 const _categories = [
-  _Category('All', Icons.apps_rounded, null),
-  _Category('Sedan', Icons.directions_car_rounded, 'Sedan'),
-  _Category('SUV', Icons.airport_shuttle_rounded, 'SUV'),
-  _Category('Pickup', Icons.local_shipping_rounded, 'Pickup'),
-  _Category('Electric', Icons.bolt_rounded, 'Electric'),
-  _Category('Luxury', Icons.diamond_rounded, 'Luxury'),
-  _Category('Van', Icons.directions_bus_rounded, 'Van'),
+  _Category('All Cars',  Icons.apps_rounded,              null),
+  _Category('Sedan',     Icons.directions_car_rounded,    'Sedan'),
+  _Category('SUV',       Icons.airport_shuttle_rounded,   'SUV'),
+  _Category('Pickup',    Icons.local_shipping_rounded,    'Pickup'),
+  _Category('Electric',  Icons.bolt_rounded,              'Electric'),
+  _Category('Hybrid',    Icons.eco_rounded,               'Hybrid'),
+  _Category('Luxury',    Icons.diamond_rounded,           'Luxury'),
+  _Category('Budget',    Icons.savings_rounded,           'Budget'),
+  _Category('Van',       Icons.directions_bus_rounded,    'Van'),
 ];
 
 class _Category {
@@ -138,12 +140,8 @@ class _HomeViewState extends State<_HomeView> {
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
               slivers: [
-                // ── Header ──
-                SliverToBoxAdapter(child: _buildHeader(ctx, mq)),
-                // ── Search Bar ──
-                SliverToBoxAdapter(child: _buildSearchBar(ctx, mq)),
-                // ── Categories ──
-                SliverToBoxAdapter(child: _buildCategories(mq)),
+                // ── Sticky compact header (Logo + Bell + Search + Categories) ──
+                SliverToBoxAdapter(child: _buildCompactHeader(ctx, mq)),
                 // ── Hero Banner ──
                 SliverToBoxAdapter(child: _buildHero(ctx, mq, isTablet)),
                 // ── Content ──
@@ -165,139 +163,206 @@ class _HomeViewState extends State<_HomeView> {
     );
   }
 
-  // ── HEADER ───────────────────────────────────────────────────────────────────
+  // ── COMPACT ALIEXPRESS-STYLE HEADER ─────────────────────────────────────────
 
-  Widget _buildHeader(BuildContext ctx, MediaQueryData mq) {
+  Widget _buildCompactHeader(BuildContext ctx, MediaQueryData mq) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, mq.padding.top + 16, 20, 16),
-      child: Row(
+      color: AppColors.bgPrimary,
+      padding: EdgeInsets.only(top: mq.padding.top),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Avatar / Profile
-          GestureDetector(
-            onTap: () => ctx.go('/profile'),
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.goldPrimary, width: 2),
-                image: const DecorationImage(
-                  image: NetworkImage('https://i.pravatar.cc/150?img=11'),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          // Greeting
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          // ── Row 1: Logo + Icons ──────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            child: Row(
               children: [
-                const Text('Good day 👋',
-                    style: TextStyle(
-                        color: AppColors.textSecondary,
-                        fontSize: 12,
-                        height: 1.2)),
-                const Text('Find Your Perfect Car',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.3)),
+                // Logo
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 30,
+                      height: 30,
+                      decoration: const BoxDecoration(
+                        gradient: AppColors.goldGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.directions_car_rounded,
+                          color: Colors.black, size: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: 'Ethio',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          TextSpan(
+                            text: 'Drive',
+                            style: TextStyle(
+                              color: AppColors.goldPrimary,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                // Favorites
+                GestureDetector(
+                  onTap: () => ctx.go('/favorites'),
+                  child: _HeaderIconBtn(
+                    icon: Icons.favorite_border_rounded,
+                    onTap: () => ctx.go('/favorites'),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Notification
+                _HeaderIconBtn(
+                  icon: Icons.notifications_outlined,
+                  badge: true,
+                  onTap: () {},
+                ),
               ],
             ),
           ),
-          // Notification
-          GestureDetector(
-            onTap: () {},
-            child: Stack(
+
+          // ── Row 2: Search Bar ────────────────────────────────────────────
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+            child: Row(
               children: [
-                Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: AppColors.bgSecondary,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AppColors.borderSubtle),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => ctx.go('/search'),
+                    child: Container(
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: AppColors.bgSecondary,
+                        borderRadius: BorderRadius.circular(22),
+                        border: Border.all(color: AppColors.borderSubtle),
+                      ),
+                      child: Row(
+                        children: [
+                          const SizedBox(width: 14),
+                          const Icon(Icons.search_rounded,
+                              color: AppColors.textTertiary, size: 18),
+                          const SizedBox(width: 8),
+                          const Expanded(
+                            child: Text(
+                              'Search cars, brands or models',
+                              style: TextStyle(
+                                  color: AppColors.textTertiary,
+                                  fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.notifications_outlined,
-                      color: Colors.white, size: 22),
                 ),
-                Positioned(
-                  right: 10, top: 10,
+                const SizedBox(width: 8),
+                // Filter
+                GestureDetector(
+                  onTap: () => _showFilterSheet(ctx),
                   child: Container(
-                    width: 8, height: 8,
-                    decoration: const BoxDecoration(
-                        color: AppColors.goldPrimary, shape: BoxShape.circle),
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      gradient: AppColors.goldGradient,
+                      borderRadius: BorderRadius.circular(22),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.tune_rounded,
+                          color: Colors.black, size: 20),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          // Favorites
-          GestureDetector(
-            onTap: () => ctx.go('/favorites'),
-            child: Container(
-              width: 42,
-              height: 42,
-              decoration: BoxDecoration(
-                color: AppColors.bgSecondary,
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.borderSubtle),
-              ),
-              child: const Icon(Icons.favorite_border_rounded,
-                  color: Colors.white, size: 22),
+
+          // ── Row 3: Category pill tabs (AliExpress style) ─────────────────
+          SizedBox(
+            height: 38,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              itemCount: _categories.length,
+              itemBuilder: (_, i) {
+                final cat = _categories[i];
+                final isActive = _categoryIdx == i;
+                return GestureDetector(
+                  onTap: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _categoryIdx = i);
+                  },
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 220),
+                    margin: const EdgeInsets.only(right: 8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 14, vertical: 0),
+                    decoration: BoxDecoration(
+                      color: isActive
+                          ? AppColors.goldPrimary
+                          : AppColors.bgSecondary,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: isActive
+                            ? AppColors.goldPrimary
+                            : AppColors.borderSubtle,
+                      ),
+                    ),
+                    child: Center(
+                      child: Text(
+                        cat.label,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isActive
+                              ? FontWeight.w700
+                              : FontWeight.w400,
+                          color: isActive
+                              ? Colors.black
+                              : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
+          ),
+
+          const SizedBox(height: 10),
+          // Thin gold separator line
+          Container(
+            height: 0.5,
+            color: AppColors.borderSubtle,
           ),
         ],
       ),
     );
   }
 
+
+
+
   // ── SEARCH BAR ────────────────────────────────────────────────────────────────
 
-  Widget _buildSearchBar(BuildContext ctx, MediaQueryData mq) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-      child: Row(
-        children: [
-          Expanded(
-            child: GestureDetector(
-              onTap: () => ctx.go('/search'),
-              child: Container(
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppColors.bgSecondary,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.borderSubtle),
-                ),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 14),
-                    const Icon(Icons.search_rounded,
-                        color: AppColors.textTertiary, size: 20),
-                    const SizedBox(width: 8),
-                    const Expanded(
-                      child: Text('Search make, model…',
-                          style: TextStyle(
-                              color: AppColors.textTertiary, fontSize: 14)),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 10),
-          // Filter button
-          GestureDetector(
-            onTap: () => _showFilterSheet(ctx),
-            child: Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: AppColors.goldGradient,
+
                 borderRadius: BorderRadius.circular(14),
               ),
               child: const Icon(Icons.tune_rounded,
@@ -346,66 +411,6 @@ class _HomeViewState extends State<_HomeView> {
     );
   }
 
-  // ── CATEGORIES ───────────────────────────────────────────────────────────────
-
-  Widget _buildCategories(MediaQueryData mq) {
-    return SizedBox(
-      height: 80,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        itemCount: _categories.length,
-        itemBuilder: (_, i) {
-          final cat = _categories[i];
-          final isActive = _categoryIdx == i;
-          return GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              setState(() => _categoryIdx = i);
-            },
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 250),
-              margin: const EdgeInsets.only(right: 10, bottom: 8, top: 4),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-              decoration: BoxDecoration(
-                color: isActive
-                    ? AppColors.goldPrimary.withOpacity(0.15)
-                    : AppColors.bgSecondary,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: isActive
-                      ? AppColors.goldPrimary
-                      : AppColors.borderSubtle,
-                  width: isActive ? 1.5 : 1,
-                ),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(cat.icon,
-                      size: 22,
-                      color: isActive
-                          ? AppColors.goldPrimary
-                          : AppColors.textSecondary),
-                  const SizedBox(height: 4),
-                  Text(cat.label,
-                      style: TextStyle(
-                          fontSize: 11,
-                          color: isActive
-                              ? AppColors.goldPrimary
-                              : AppColors.textSecondary,
-                          fontWeight: isActive
-                              ? FontWeight.w700
-                              : FontWeight.w400)),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
 
   // ── HERO BANNER ───────────────────────────────────────────────────────────────
 
@@ -762,3 +767,53 @@ class _SectionData {
   final List<ListingModel> items;
   const _SectionData(this.title, this.items);
 }
+
+// ── HEADER ICON BUTTON ────────────────────────────────────────────────────────
+
+class _HeaderIconBtn extends StatelessWidget {
+  final IconData icon;
+  final bool badge;
+  final VoidCallback onTap;
+
+  const _HeaderIconBtn({
+    required this.icon,
+    this.badge = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColors.bgSecondary,
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.borderSubtle),
+            ),
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          if (badge)
+            Positioned(
+              right: 8,
+              top: 8,
+              child: Container(
+                width: 8,
+                height: 8,
+                decoration: const BoxDecoration(
+                  color: AppColors.goldPrimary,
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
