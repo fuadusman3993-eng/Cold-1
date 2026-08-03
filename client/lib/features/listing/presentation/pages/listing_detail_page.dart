@@ -26,32 +26,112 @@ class _ListingDetailPageState extends State<ListingDetailPage> {
     final listing = _listing;
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      body: CustomScrollView(
-        slivers: [
-          _buildImageHeader(listing),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(AppSpacing.s4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildTitleSection(listing),
-                  const SizedBox(height: AppSpacing.s4),
-                  _buildSpecsGrid(listing),
-                  const SizedBox(height: AppSpacing.s4),
-                  _buildDivider(),
-                  _buildDescription(listing),
-                  const SizedBox(height: AppSpacing.s4),
-                  _buildDivider(),
-                  _buildSellerCard(listing),
-                  const SizedBox(height: 100),
-                ],
-              ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isDesktop = constraints.maxWidth >= 800;
+          if (isDesktop) {
+            return _buildDesktopLayout(listing);
+          }
+          return _buildMobileLayout(listing);
+        },
+      ),
+      bottomNavigationBar: MediaQuery.of(context).size.width < 800 ? _buildActionBar(listing) : null,
+    );
+  }
+
+  Widget _buildDesktopLayout(ListingModel listing) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(
+          flex: 3,
+          child: Container(
+            height: double.infinity,
+            color: AppColors.bgTertiary,
+            child: Stack(
+              children: [
+                listing.images.isEmpty
+                  ? const Center(child: Icon(Icons.directions_car, size: 80, color: AppColors.textTertiary))
+                  : PageView.builder(
+                      itemCount: listing.images.length,
+                      onPageChanged: (i) => setState(() => _currentImageIndex = i),
+                      itemBuilder: (ctx, i) => Image.network(listing.images[i], fit: BoxFit.cover),
+                    ),
+                Positioned(
+                  top: 24, left: 24,
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(30)),
+                      child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: _buildActionBar(listing),
+        ),
+        Expanded(
+          flex: 2,
+          child: Container(
+            color: AppColors.bgPrimary,
+            height: double.infinity,
+            child: Column(
+              children: [
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(AppSpacing.s6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTitleSection(listing),
+                        const SizedBox(height: AppSpacing.s6),
+                        _buildSpecsGrid(listing),
+                        const SizedBox(height: AppSpacing.s6),
+                        _buildDivider(),
+                        _buildDescription(listing),
+                        const SizedBox(height: AppSpacing.s6),
+                        _buildDivider(),
+                        _buildSellerCard(listing),
+                      ],
+                    ),
+                  ),
+                ),
+                _buildActionBar(listing),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(ListingModel listing) {
+    return CustomScrollView(
+      slivers: [
+        _buildImageHeader(listing),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildTitleSection(listing),
+                const SizedBox(height: AppSpacing.s4),
+                _buildSpecsGrid(listing),
+                const SizedBox(height: AppSpacing.s4),
+                _buildDivider(),
+                _buildDescription(listing),
+                const SizedBox(height: AppSpacing.s4),
+                _buildDivider(),
+                _buildSellerCard(listing),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -79,15 +159,6 @@ class _ListingDetailPageState extends State<ListingDetailPage> {
               _isFavorite ? Icons.favorite : Icons.favorite_border,
               color: _isFavorite ? AppColors.error : Colors.white, size: 20,
             ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            margin: const EdgeInsets.all(8),
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(20)),
-            child: const Icon(Icons.share_outlined, color: Colors.white, size: 20),
           ),
         ),
       ],
@@ -130,23 +201,14 @@ class _ListingDetailPageState extends State<ListingDetailPage> {
                 ),
               ),
             const Spacer(),
-            Text(
-              listing.location,
-              style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
-            ),
+            Text(listing.location, style: const TextStyle(fontSize: 12, color: AppColors.textTertiary)),
             const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textTertiary),
           ],
         ),
         const SizedBox(height: AppSpacing.s2),
-        Text(
-          '${listing.year} ${listing.make} ${listing.model}',
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-        ),
+        Text('${listing.year} ${listing.make} ${listing.model}', style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary)),
         const SizedBox(height: AppSpacing.s2),
-        Text(
-          'ETB ${_formatPrice(listing.price)}',
-          style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.goldPrimary),
-        ),
+        Text('ETB ${_formatPrice(listing.price)}', style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.goldPrimary)),
       ],
     );
   }
@@ -161,11 +223,11 @@ class _ListingDetailPageState extends State<ListingDetailPage> {
       ['Year', listing.year.toString(), Icons.calendar_today_outlined],
     ];
     return GridView.count(
-      crossAxisCount: 3, shrinkWrap: true,
+      crossAxisCount: MediaQuery.of(context).size.width >= 800 ? 2 : 3, shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       mainAxisSpacing: AppSpacing.s3,
       crossAxisSpacing: AppSpacing.s3,
-      childAspectRatio: 1.3,
+      childAspectRatio: MediaQuery.of(context).size.width >= 800 ? 1.8 : 1.3,
       children: specs.map((s) => Container(
         decoration: BoxDecoration(
           color: AppColors.bgSecondary,

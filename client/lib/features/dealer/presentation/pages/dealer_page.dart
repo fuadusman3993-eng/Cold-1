@@ -58,8 +58,8 @@ class DealerPage extends StatelessWidget {
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
             sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, mainAxisSpacing: AppSpacing.s3, crossAxisSpacing: AppSpacing.s3, childAspectRatio: 0.72,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 240, mainAxisSpacing: AppSpacing.s3, crossAxisSpacing: AppSpacing.s3, childAspectRatio: 0.72,
               ),
               delegate: SliverChildBuilderDelegate(
                 (ctx, i) => ListingCard(listing: listings[i]), childCount: listings.length,

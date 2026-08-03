@@ -27,14 +27,6 @@ class EthioDriveApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: _buildTheme(),
       routerConfig: AppRouter.router,
-      builder: (context, child) {
-        return Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: child ?? const SizedBox(),
-          ),
-        );
-      },
     );
   }
 

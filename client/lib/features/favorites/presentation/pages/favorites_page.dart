@@ -23,8 +23,8 @@ class FavoritesPage extends StatelessWidget {
             ]))
           : GridView.builder(
               padding: const EdgeInsets.all(AppSpacing.s4),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, mainAxisSpacing: AppSpacing.s3, crossAxisSpacing: AppSpacing.s3, childAspectRatio: 0.72,
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 240, mainAxisSpacing: AppSpacing.s3, crossAxisSpacing: AppSpacing.s3, childAspectRatio: 0.72,
               ),
               itemCount: favorites.length,
               itemBuilder: (ctx, i) => ListingCard(listing: favorites[i]),
