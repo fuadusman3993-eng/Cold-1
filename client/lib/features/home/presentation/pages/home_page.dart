@@ -79,7 +79,7 @@ class _HomePageState extends State<HomePage> {
                         _buildSection('Featured Cars', state.featured),
                         _buildSection('Luxury Collection', state.luxury),
                         _buildSection('Recently Added', state.recent),
-                        const SizedBox(height: AppSpacing.s48),
+                        SizedBox(height: 48),
                       ]),
                     );
                   }
