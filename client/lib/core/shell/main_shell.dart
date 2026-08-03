@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
+import 'package:ethiodrive/features/ai/presentation/widgets/ai_assistant_widget.dart';
 
 class MainShell extends StatelessWidget {
   final Widget child;
@@ -20,7 +21,16 @@ class MainShell extends StatelessWidget {
   Widget build(BuildContext context) {
     final idx = _selectedIndex(context);
     return Scaffold(
-      body: child,
+      body: Stack(
+        children: [
+          child,
+          const Positioned(
+            right: 16,
+            bottom: 16,
+            child: SafeArea(child: AIAssistantWidget()),
+          ),
+        ],
+      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: AppColors.bgSecondary,

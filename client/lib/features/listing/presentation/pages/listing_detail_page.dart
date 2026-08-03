@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
 import 'package:ethiodrive/core/theme/app_spacing.dart';
 import 'package:ethiodrive/features/listing/domain/models/listing_model.dart';
+import 'package:go_router/go_router.dart';
 
 class ListingDetailPage extends StatefulWidget {
   final String listingId;
@@ -245,7 +246,7 @@ class _ListingDetailPageState extends State<ListingDetailPage> {
         children: [
           Expanded(
             child: OutlinedButton.icon(
-              onPressed: () {},
+              onPressed: () => context.push('/offer/${listing.id}'),
               icon: const Icon(Icons.local_offer_outlined, size: 18),
               label: const Text('Make Offer'),
             ),
