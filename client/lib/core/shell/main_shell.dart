@@ -150,8 +150,9 @@ class MainShell extends StatelessWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 64,
+          height: 68,
           child: Stack(
+            clipBehavior: Clip.none,
             alignment: Alignment.center,
             children: [
               Row(
@@ -208,30 +209,31 @@ class MainShell extends StatelessWidget {
                   ),
                 ],
               ),
-              // Centre FAB
+      // Centre FAB — sits on top of nav bar, always fully visible
               Positioned(
-                top: -18,
+                top: -22,
                 child: GestureDetector(
                   onTap: () {
                     HapticFeedback.mediumImpact();
                     ctx.go('/sell');
                   },
                   child: Container(
-                    width: 56,
-                    height: 56,
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
                       gradient: AppColors.goldGradient,
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
                           color: AppColors.goldPrimary.withOpacity(0.45),
-                          blurRadius: 20,
-                          offset: const Offset(0, 4),
+                          blurRadius: 18,
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
-                    child: const Icon(Icons.add_rounded,
-                        color: Colors.black, size: 28),
+                    child: const Center(
+                      child: Icon(Icons.add_rounded, color: Colors.black, size: 28),
+                    ),
                   ),
                 ),
               ),

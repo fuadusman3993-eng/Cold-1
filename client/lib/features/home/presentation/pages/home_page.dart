@@ -459,7 +459,8 @@ class _HomeViewState extends State<_HomeView> {
   // ── SHIMMER LOADING ───────────────────────────────────────────────────────────
 
   Widget _buildShimmerSections(MediaQueryData mq, bool isTablet) {
-    final cardW = isTablet ? 220.0 : mq.size.width * 0.46;
+    // Card width: bigger on tablets, 48% on phones, min 155px
+    final cardW = isTablet ? 220.0 : (mq.size.width * 0.48).clamp(155.0, 220.0);
     return Column(
       children: List.generate(2, (_) {
         return Column(
@@ -475,7 +476,7 @@ class _HomeViewState extends State<_HomeView> {
               ),
             ),
             SizedBox(
-              height: cardW * 1.55,
+              height: cardW * 1.72,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -539,7 +540,8 @@ class _HomeViewState extends State<_HomeView> {
 
   Widget _buildLoadedSections(
       BuildContext ctx, HomeLoaded state, MediaQueryData mq, bool isTablet) {
-    final cardW = isTablet ? 220.0 : mq.size.width * 0.46;
+    // Card width: bigger on tablets, 48% on phones, min 155px
+    final cardW = isTablet ? 220.0 : (mq.size.width * 0.48).clamp(155.0, 220.0);
     final sections = [
       _SectionData('Recommended For You', state.recommended),
       _SectionData('Featured Cars', state.featured),
@@ -636,7 +638,7 @@ class _HomeViewState extends State<_HomeView> {
           ),
         ),
         SizedBox(
-          height: cardW * 1.56,
+          height: cardW * 1.72,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
