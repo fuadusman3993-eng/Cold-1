@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import '../../../core/network/api_client.dart';
-import '../../home/data/models/listing_model.dart';
+import '../../../../core/network/api_client.dart';
+import '../../../listing/domain/models/listing_model.dart';
 
 class ListingRepository {
   final ApiClient apiClient;

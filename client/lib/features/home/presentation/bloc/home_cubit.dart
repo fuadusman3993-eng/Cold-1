@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../../../features/home/data/models/listing_model.dart';
-import '../../../../features/home/data/repositories/listing_repository.dart';
+import '../../../listing/domain/models/listing_model.dart';
+import '../../data/repositories/listing_repository.dart';
 
 // State
 abstract class HomeState extends Equatable {
