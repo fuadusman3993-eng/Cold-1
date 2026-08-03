@@ -464,8 +464,8 @@ class _HomeViewState extends State<_HomeView> {
   // ── SHIMMER LOADING ───────────────────────────────────────────────────────────
 
   Widget _buildShimmerSections(MediaQueryData mq, bool isTablet) {
-    // Card width: bigger on tablets, 48% on phones, min 155px
-    final cardW = isTablet ? 220.0 : (mq.size.width * 0.48).clamp(155.0, 220.0);
+    // Card width: fit at least 2 cards per screen width
+    final cardW = isTablet ? 220.0 : (mq.size.width * 0.42).clamp(140.0, 220.0);
     return Column(
       children: List.generate(2, (_) {
         return Column(
@@ -545,8 +545,8 @@ class _HomeViewState extends State<_HomeView> {
 
   Widget _buildLoadedSections(
       BuildContext ctx, HomeLoaded state, MediaQueryData mq, bool isTablet) {
-    // Card width: bigger on tablets, 48% on phones, min 155px
-    final cardW = isTablet ? 220.0 : (mq.size.width * 0.48).clamp(155.0, 220.0);
+    // Card width: fit at least 2 cards per screen width (approx 42% width)
+    final cardW = isTablet ? 220.0 : (mq.size.width * 0.42).clamp(140.0, 220.0);
     final sections = [
       _SectionData('Recommended For You', state.recommended),
       _SectionData('Featured Cars', state.featured),
@@ -643,17 +643,20 @@ class _HomeViewState extends State<_HomeView> {
           ),
         ),
         SizedBox(
-          height: cardW * 1.72,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            itemCount: section.items.length,
-            itemBuilder: (_, i) => Padding(
-              padding: const EdgeInsets.only(right: 14),
-              child: ListingCard(listing: section.items[i], width: cardW),
-            ),
-          ),
+          height: cardW * 1.75, // slightly more height for narrower cards
+          child: section.items.length == 1
+              // Center single card so it doesn't leave huge empty space on right
+              ? Center(
+                  child: ListingCard(listing: section.items.first, width: cardW),
+                )
+              : ListView.separated(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: section.items.length,
+                  separatorBuilder: (_, __) => const SizedBox(width: 16),
+                  itemBuilder: (_, i) => ListingCard(listing: section.items[i], width: cardW),
+                ),
         ),
       ],
     );
