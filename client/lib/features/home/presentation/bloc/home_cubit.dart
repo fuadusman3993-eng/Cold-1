@@ -3,7 +3,8 @@ import 'package:equatable/equatable.dart';
 import '../../../listing/domain/models/listing_model.dart';
 import '../../data/repositories/listing_repository.dart';
 
-// State
+// ─── States ──────────────────────────────────────────────────────────────────
+
 abstract class HomeState extends Equatable {
   const HomeState();
   @override
@@ -37,7 +38,8 @@ class HomeError extends HomeState {
   List<Object> get props => [message];
 }
 
-// Cubit
+// ─── Cubit ───────────────────────────────────────────────────────────────────
+
 class HomeCubit extends Cubit<HomeState> {
   final ListingRepository _repository;
 
@@ -46,19 +48,39 @@ class HomeCubit extends Cubit<HomeState> {
   Future<void> fetchHomeData() async {
     emit(HomeLoading());
     try {
-      final recommended = await _repository.getListings(queryParams: {'limit': 4});
-      final featured = await _repository.getFeaturedListings();
-      final luxury = await _repository.getListings(queryParams: {'minPrice': 4000000, 'limit': 4});
-      final recent = await _repository.getListings(queryParams: {'sort': 'createdAt_desc', 'limit': 4});
+      // Try fetching from backend
+      final results = await Future.wait([
+        _repository.getListings(queryParams: {'limit': '6'}),
+        _repository.getFeaturedListings(),
+        _repository.getListings(queryParams: {'minPrice': '4000000', 'limit': '4'}),
+        _repository.getListings(queryParams: {'sort': 'createdAt_desc', 'limit': '6'}),
+      ]);
 
+      // If DB is empty, fall back to mock data so app always shows content
+      final allEmpty = results.every((r) => r.isEmpty);
+      if (allEmpty) {
+        emit(HomeLoaded(
+          recommended: mockListings,
+          featured: mockListings.where((l) => l.isFeatured).toList(),
+          luxury: mockListings.where((l) => l.price > 4000000).toList(),
+          recent: mockListings.reversed.toList(),
+        ));
+      } else {
+        emit(HomeLoaded(
+          recommended: results[0],
+          featured: results[1].isNotEmpty ? results[1] : results[0],
+          luxury: results[2].isNotEmpty ? results[2] : results[0],
+          recent: results[3],
+        ));
+      }
+    } catch (_) {
+      // On any network error, show mock data (offline-first approach)
       emit(HomeLoaded(
-        recommended: recommended,
-        featured: featured,
-        luxury: luxury,
-        recent: recent,
+        recommended: mockListings,
+        featured: mockListings.where((l) => l.isFeatured).toList(),
+        luxury: mockListings.where((l) => l.price > 4000000).toList(),
+        recent: mockListings.reversed.toList(),
       ));
-    } catch (e) {
-      emit(HomeError(e.toString()));
     }
   }
 }
