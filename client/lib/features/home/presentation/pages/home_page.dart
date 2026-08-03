@@ -183,7 +183,7 @@ class HomePage extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           image: DecorationImage(
-            image: NetworkImage(mockListings.first.images.first), // Using first listing image as background
+            image: NetworkImage(mockListings.first.images.isNotEmpty ? mockListings.first.images.first : 'https://images.unsplash.com/photo-1503376713917-740b2b814df3?w=600&q=80'),
             fit: BoxFit.cover,
             colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.darken),
           ),
