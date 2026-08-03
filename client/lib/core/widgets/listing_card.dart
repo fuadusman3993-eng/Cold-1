@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
-import 'package:ethiodrive/core/theme/app_spacing.dart';
 import 'package:ethiodrive/features/listing/domain/models/listing_model.dart';
 
 class ListingCard extends StatefulWidget {
@@ -20,17 +19,10 @@ class _ListingCardState extends State<ListingCard> {
     return GestureDetector(
       onTap: () => context.push('/listing/${widget.listing.id}'),
       child: Container(
+        width: 220,
         decoration: BoxDecoration(
-          color: AppColors.bgSecondary,
-          borderRadius: BorderRadius.circular(AppRadius.lg),
-          border: Border.all(color: AppColors.borderSubtle),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          color: const Color(0xFF1A1A1A), // Darker grey matching image
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -39,9 +31,9 @@ class _ListingCardState extends State<ListingCard> {
             Stack(
               children: [
                 ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.lg)),
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
                   child: AspectRatio(
-                    aspectRatio: 16 / 10,
+                    aspectRatio: 1.2,
                     child: widget.listing.images.isNotEmpty
                         ? Image.network(
                             widget.listing.images.first,
@@ -51,91 +43,91 @@ class _ListingCardState extends State<ListingCard> {
                         : _imagePlaceholder(),
                   ),
                 ),
-                // Badges
-                Positioned(
-                  top: AppSpacing.s2,
-                  left: AppSpacing.s2,
-                  child: Row(
-                    children: [
-                      if (widget.listing.isFeatured) _badge('FEATURED', AppColors.goldPrimary, AppColors.textInverse),
-                      if (widget.listing.isVerified) ...[
-                        const SizedBox(width: 4),
-                        _badge('✓ VERIFIED', AppColors.success, Colors.black),
-                      ],
-                    ],
+                // Verified Badge (Bottom Left)
+                if (widget.listing.isVerified)
+                  Positioned(
+                    bottom: 8,
+                    left: 8,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.6),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: const [
+                          Icon(Icons.check_circle, color: AppColors.goldPrimary, size: 12),
+                          SizedBox(width: 4),
+                          Text(
+                            'VERIFIED',
+                            style: TextStyle(fontSize: 9, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: 0.5),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                // Favorite button
+                // Favorite Button (Top Right)
                 Positioned(
-                  top: AppSpacing.s2,
-                  right: AppSpacing.s2,
+                  top: 8,
+                  right: 8,
                   child: GestureDetector(
                     onTap: () => setState(() => _isFavorite = !_isFavorite),
-                    child: AnimatedScale(
-                      scale: _isFavorite ? 1.2 : 1.0,
-                      duration: const Duration(milliseconds: 200),
-                      child: Container(
-                        width: 36, height: 36,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          _isFavorite ? Icons.favorite : Icons.favorite_border,
-                          color: _isFavorite ? AppColors.error : Colors.white,
-                          size: 20,
-                        ),
+                    child: Container(
+                      width: 32, height: 32,
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        _isFavorite ? Icons.favorite : Icons.favorite_border,
+                        color: Colors.white,
+                        size: 18,
                       ),
                     ),
                   ),
                 ),
               ],
             ),
-            // Info Section
+            // Details Section
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.s4),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '${widget.listing.year} ${widget.listing.make} ${widget.listing.model}',
+                    '${widget.listing.make} ${widget.listing.model}\n${widget.listing.year}',
                     style: const TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.w600,
-                      color: AppColors.textPrimary,
+                      fontSize: 14, fontWeight: FontWeight.w600,
+                      color: Colors.white, height: 1.2,
                     ),
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
-                  const SizedBox(height: AppSpacing.s1),
-                  // Price
+                  const SizedBox(height: 6),
                   Text(
-                    'ETB ${_formatPrice(widget.listing.price)}',
+                    '\$${_formatPrice(widget.listing.price)}',
                     style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w700,
+                      fontSize: 15, fontWeight: FontWeight.bold,
                       color: AppColors.goldPrimary,
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.s2),
-                  // Specs chips
-                  Row(
-                    children: [
-                      _specChip('${widget.listing.mileage}km'),
-                      const SizedBox(width: AppSpacing.s2),
-                      _specChip(widget.listing.transmission),
-                      const SizedBox(width: AppSpacing.s2),
-                      _specChip(widget.listing.fuelType),
-                    ],
+                  const SizedBox(height: 4),
+                  Text(
+                    '${widget.listing.mileage} km • ${widget.listing.transmission}',
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
                   ),
-                  const SizedBox(height: AppSpacing.s2),
-                  // Location
+                  const SizedBox(height: 12),
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 12, color: AppColors.textTertiary),
-                      const SizedBox(width: 2),
+                      const Icon(Icons.location_on_outlined, size: 14, color: Colors.grey),
+                      const SizedBox(width: 4),
                       Text(
                         widget.listing.location,
-                        style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                        style: const TextStyle(fontSize: 11, color: Colors.grey),
                       ),
+                      const Spacer(),
+                      const Icon(Icons.bookmark_border, size: 18, color: Colors.grey),
                     ],
                   ),
                 ],
@@ -149,43 +141,15 @@ class _ListingCardState extends State<ListingCard> {
 
   Widget _imagePlaceholder() {
     return Container(
-      color: AppColors.bgTertiary,
+      color: const Color(0xFF2A2A2A),
       child: const Center(
-        child: Icon(Icons.directions_car, size: 48, color: AppColors.textTertiary),
-      ),
-    );
-  }
-
-  Widget _badge(String text, Color bg, Color fg) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: bg, borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w700, color: fg, letterSpacing: 0.5),
-      ),
-    );
-  }
-
-  Widget _specChip(String label) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: AppColors.bgTertiary,
-        borderRadius: BorderRadius.circular(AppRadius.xs),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+        child: Icon(Icons.directions_car, size: 48, color: Colors.grey),
       ),
     );
   }
 
   String _formatPrice(double price) {
-    if (price >= 1000000) return '${(price / 1000000).toStringAsFixed(1)}M';
-    if (price >= 1000) return '${(price / 1000).toStringAsFixed(0)}K';
-    return price.toStringAsFixed(0);
+    // Standard comma separation
+    return price.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
   }
 }

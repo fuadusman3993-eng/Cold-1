@@ -92,9 +92,8 @@ class MainShell extends StatelessWidget {
   Widget _buildBottomNavigationBar(BuildContext context, int idx) {
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.bgSecondary,
-        border: const Border(top: BorderSide(color: AppColors.borderSubtle)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20, offset: const Offset(0, -5))],
+        color: Colors.black,
+        border: const Border(top: BorderSide(color: Color(0xFF1A1A1A))),
       ),
       child: SafeArea(
         child: SizedBox(
