@@ -1,27 +1,66 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
-import 'package:ethiodrive/core/theme/app_spacing.dart';
 import 'package:ethiodrive/core/widgets/listing_card.dart';
 import 'package:ethiodrive/features/listing/domain/models/listing_model.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final PageController _heroController = PageController();
+  int _currentHeroIndex = 0;
+  Timer? _heroTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _startHeroAutoPlay();
+  }
+
+  @override
+  void dispose() {
+    _heroTimer?.cancel();
+    _heroController.dispose();
+    super.dispose();
+  }
+
+  void _startHeroAutoPlay() {
+    _heroTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_heroController.hasClients) {
+        final nextIndex = (_currentHeroIndex + 1) % 3; // Assume 3 featured items
+        _heroController.animateToPage(
+          nextIndex,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.fastOutSlowIn,
+        );
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Darkest background matching image
+      backgroundColor: AppColors.bgPrimary, // Pure Black
       body: SafeArea(
         child: CustomScrollView(
+          physics: const BouncingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(child: _buildHeader()),
             SliverToBoxAdapter(child: _buildSearchBar()),
             SliverToBoxAdapter(child: _buildCategories()),
             SliverToBoxAdapter(child: _buildHeroBanner()),
-            _buildSection('Recommended For You', mockListings.take(3).toList()),
-            _buildSection('Trending This Week', mockListings.skip(1).take(3).toList()),
-            _buildSection('Recently Added', mockListings.skip(2).take(3).toList()),
-            const SliverToBoxAdapter(child: SizedBox(height: 100)), // Space for bottom nav
+            _buildSection('Recommended For You', mockListings.take(4).toList()),
+            _buildSection('Trending', mockListings.skip(1).take(4).toList()),
+            _buildSection('Luxury Collection', mockListings.where((l) => l.price > 4000000).toList()),
+            _buildSection('Recently Added', mockListings.reversed.take(4).toList()),
+            _buildSection('Nearby Cars', mockListings.take(4).toList()),
+            _buildSection('Verified Dealers', mockListings.where((l) => l.isVerified).toList()),
+            const SliverToBoxAdapter(child: SizedBox(height: 120)), // Space for bottom nav & FAB
           ],
         ),
       ),
@@ -30,67 +69,73 @@ class HomePage extends StatelessWidget {
 
   Widget _buildHeader() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4, vertical: AppSpacing.s3),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Menu Icon
+          // Left: Menu Button
           Container(
-            padding: const EdgeInsets.all(10),
+            width: 48, height: 48,
             decoration: BoxDecoration(
-              color: const Color(0xFF1A1A1A),
+              color: AppColors.bgSecondary, // #111111
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.menu, color: Colors.white, size: 20),
+            child: const Icon(Icons.menu, color: Colors.white, size: 24),
           ),
-          const SizedBox(width: AppSpacing.s3),
-          // Greeting & Location
+          // Center: Greeting
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Text('Good Morning,', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                const Text('Good Morning,', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+                const SizedBox(height: 2),
                 const Text('Fuad 👋', style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 2),
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: const [
-                    Icon(Icons.location_on_outlined, color: Colors.grey, size: 12),
-                    SizedBox(width: 2),
-                    Text('Addis Ababa, Ethiopia', style: TextStyle(color: Colors.grey, fontSize: 11)),
-                    Icon(Icons.keyboard_arrow_down, color: Colors.grey, size: 14),
+                    Icon(Icons.location_on, color: AppColors.goldPrimary, size: 12),
+                    SizedBox(width: 4),
+                    Text('Addis Ababa', style: TextStyle(color: AppColors.textSecondary, fontSize: 12)),
                   ],
                 ),
               ],
             ),
           ),
-          // Notifications
-          Stack(
+          // Right: Actions
+          Row(
             children: [
-              const Padding(
-                padding: EdgeInsets.all(8.0),
-                child: Icon(Icons.notifications_outlined, color: Colors.white, size: 24),
+              Stack(
+                children: [
+                  Container(
+                    width: 48, height: 48,
+                    decoration: BoxDecoration(
+                      color: AppColors.bgSecondary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.notifications_none, color: Colors.white, size: 24),
+                  ),
+                  Positioned(
+                    right: 12, top: 12,
+                    child: Container(
+                      width: 8, height: 8,
+                      decoration: const BoxDecoration(color: AppColors.goldPrimary, shape: BoxShape.circle),
+                    ),
+                  ),
+                ],
               ),
-              Positioned(
-                right: 6, top: 6,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(color: AppColors.goldPrimary, shape: BoxShape.circle),
-                  child: const Text('3', style: TextStyle(color: Colors.black, fontSize: 9, fontWeight: FontWeight.bold)),
+              const SizedBox(width: 12),
+              Container(
+                width: 48, height: 48,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: const DecorationImage(
+                    image: NetworkImage('https://i.pravatar.cc/150?img=11'),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ],
-          ),
-          const SizedBox(width: AppSpacing.s2),
-          // Avatar
-          Container(
-            width: 40, height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.grey.withOpacity(0.3)),
-              image: const DecorationImage(
-                image: NetworkImage('https://i.pravatar.cc/150?img=11'), // Placeholder avatar
-                fit: BoxFit.cover,
-              ),
-            ),
           ),
         ],
       ),
@@ -99,24 +144,28 @@ class HomePage extends StatelessWidget {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.s4, AppSpacing.s2, AppSpacing.s4, AppSpacing.s4),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Container(
-        height: 48,
+        height: 56,
+        padding: const EdgeInsets.symmetric(horizontal: 24),
         decoration: BoxDecoration(
-          color: const Color(0xFF1A1A1A),
-          borderRadius: BorderRadius.circular(24),
+          color: AppColors.bgSecondary,
+          borderRadius: BorderRadius.circular(18),
         ),
         child: Row(
           children: [
-            const SizedBox(width: AppSpacing.s4),
-            const Icon(Icons.search, color: Colors.grey, size: 20),
-            const SizedBox(width: AppSpacing.s3),
+            const Icon(Icons.search, color: AppColors.textSecondary, size: 24),
+            const SizedBox(width: 12),
             const Expanded(
-              child: Text('Search make, model or keyword', style: TextStyle(color: Colors.grey, fontSize: 14)),
+              child: Text('Search make, model or keyword', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: const Icon(Icons.tune, color: Colors.grey, size: 20), // Filter icon
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.bgTertiary,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(Icons.tune, color: Colors.white, size: 18),
             ),
           ],
         ),
@@ -134,96 +183,150 @@ class HomePage extends StatelessWidget {
       {'icon': Icons.diamond_outlined, 'label': 'Luxury', 'active': false},
     ];
 
-    return SizedBox(
-      height: 80,
-      child: ListView.separated(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
-        scrollDirection: Axis.horizontal,
-        itemCount: categories.length,
-        separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.s3),
-        itemBuilder: (context, index) {
-          final cat = categories[index];
-          final isActive = cat['active'] as bool;
-          return Column(
-            children: [
-              Container(
-                width: 64, height: 48,
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: isActive ? AppColors.goldPrimary : Colors.grey.withOpacity(0.3)),
-                ),
-                child: Icon(
-                  cat['icon'] as IconData,
-                  color: isActive ? AppColors.goldPrimary : Colors.grey,
-                  size: 24,
-                ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 24),
+      child: SizedBox(
+        height: 72,
+        child: ListView.separated(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          itemCount: categories.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 16),
+          itemBuilder: (context, index) {
+            final cat = categories[index];
+            final isActive = cat['active'] as bool;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              width: 72,
+              decoration: BoxDecoration(
+                color: isActive ? AppColors.goldPrimary.withOpacity(0.1) : AppColors.bgSecondary,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: isActive ? AppColors.goldPrimary : Colors.transparent),
               ),
-              const SizedBox(height: 6),
-              Text(
-                cat['label'] as String,
-                style: TextStyle(
-                  color: isActive ? AppColors.goldPrimary : Colors.grey,
-                  fontSize: 11,
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    cat['icon'] as IconData,
+                    color: isActive ? AppColors.goldPrimary : Colors.white,
+                    size: 26,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    cat['label'] as String,
+                    style: TextStyle(
+                      color: isActive ? AppColors.goldPrimary : AppColors.textSecondary,
+                      fontSize: 13,
+                      fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildHeroBanner() {
+    final banners = [
+      {'image': 'https://images.unsplash.com/photo-1606664515524-ed2f786a0bd6?q=80&w=800', 'title': 'Luxury\nMeets Power', 'subtitle': 'Explore premium SUVs'},
+      {'image': 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?q=80&w=800', 'title': 'Electric\nFuture', 'subtitle': 'Discover zero emissions'},
+      {'image': 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=800', 'title': 'Sports\nCollection', 'subtitle': 'Feel the adrenaline'},
+    ];
+
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.s4),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Container(
-        height: 180,
+        height: 220,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          image: DecorationImage(
-            image: NetworkImage(mockListings.first.images.isNotEmpty ? mockListings.first.images.first : 'https://images.unsplash.com/photo-1503376713917-740b2b814df3?w=600&q=80'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.darken),
-          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(color: AppColors.goldPrimary.withOpacity(0.1), blurRadius: 32, offset: const Offset(0, 16)),
+          ],
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(24),
+          child: Stack(
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(4),
-                ),
+              PageView.builder(
+                controller: _heroController,
+                onPageChanged: (i) => setState(() => _currentHeroIndex = i),
+                itemCount: banners.length,
+                itemBuilder: (context, index) {
+                  return Container(
+                    decoration: BoxDecoration(
+                      image: DecorationImage(
+                        image: NetworkImage(banners[index]['image']!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withOpacity(0.8),
+                            Colors.black.withOpacity(0.2),
+                          ],
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                            decoration: BoxDecoration(
+                              color: Colors.black.withOpacity(0.4),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(color: AppColors.goldPrimary.withOpacity(0.5)),
+                            ),
+                            child: const Text('FEATURED DEALER', style: TextStyle(color: AppColors.goldPrimary, fontSize: 10, fontWeight: FontWeight.bold, letterSpacing: 1)),
+                          ),
+                          const Spacer(),
+                          Text(banners[index]['title']!, style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold, height: 1.1)),
+                          const SizedBox(height: 8),
+                          Text(banners[index]['subtitle']!, style: const TextStyle(color: AppColors.textSecondary, fontSize: 14)),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.goldPrimary,
+                              foregroundColor: Colors.black,
+                              minimumSize: const Size(140, 48),
+                              elevation: 0,
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            ),
+                            child: const Text('Explore Deals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+              Positioned(
+                bottom: 24,
+                right: 24,
                 child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: const [
-                    Icon(Icons.stars, color: AppColors.goldPrimary, size: 12),
-                    SizedBox(width: 4),
-                    Text('FEATURED DEALER', style: TextStyle(color: AppColors.goldPrimary, fontSize: 9, fontWeight: FontWeight.bold)),
-                  ],
+                  children: List.generate(banners.length, (index) {
+                    return AnimatedContainer(
+                      duration: const Duration(milliseconds: 300),
+                      margin: const EdgeInsets.only(left: 6),
+                      width: _currentHeroIndex == index ? 24 : 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: _currentHeroIndex == index ? AppColors.goldPrimary : Colors.white.withOpacity(0.5),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                    );
+                  }),
                 ),
-              ),
-              const Spacer(),
-              const Text('Luxury\nMeets Power', style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold, height: 1.1)),
-              const SizedBox(height: 6),
-              const Text('Explore premium cars\nfrom verified dealers', style: TextStyle(color: Colors.grey, fontSize: 12)),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.goldPrimary,
-                  foregroundColor: Colors.black,
-                  minimumSize: const Size(120, 32),
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                ),
-                child: const Text('Explore Deals', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12)),
-              ),
+              )
             ],
           ),
         ),
@@ -232,28 +335,33 @@ class HomePage extends StatelessWidget {
   }
 
   Widget _buildSection(String title, List<ListingModel> items) {
+    if (items.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+    
     return SliverToBoxAdapter(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(AppSpacing.s4, AppSpacing.s4, AppSpacing.s4, AppSpacing.s3),
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white)),
-                const Text('See All', style: TextStyle(fontSize: 12, color: AppColors.goldPrimary, fontWeight: FontWeight.w600)),
+                Text(title, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white, letterSpacing: -0.5)),
+                const Icon(Icons.arrow_forward, color: AppColors.textSecondary, size: 24),
               ],
             ),
           ),
           SizedBox(
-            height: 280, // Height for the card
-            child: ListView.separated(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.s4),
+            height: 310, // Sufficient height for the ListingCard + hover translation
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 24),
               scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
               itemCount: items.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 16),
-              itemBuilder: (ctx, i) => ListingCard(listing: items[i]),
+              itemBuilder: (ctx, i) => Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: ListingCard(listing: items[i]),
+              ),
             ),
           ),
         ],

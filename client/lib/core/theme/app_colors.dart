@@ -2,20 +2,20 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   // Background
-  static const Color bgPrimary = Color(0xFF0B0C10);
-  static const Color bgSecondary = Color(0xFF121418);
-  static const Color bgTertiary = Color(0xFF1A1D23);
-  static const Color bgQuaternary = Color(0xFF22262E);
+  static const Color bgPrimary = Color(0xFF000000); // Pure Black
+  static const Color bgSecondary = Color(0xFF111111); // Card Background
+  static const Color bgTertiary = Color(0xFF1A1A1A);
+  static const Color bgQuaternary = Color(0xFF222222);
   static const Color surfaceOverlay = Color(0x0AFFFFFF);
 
   // Text
-  static const Color textPrimary = Color(0xFFF5F5F7);
-  static const Color textSecondary = Color(0xFFA0A4AD);
+  static const Color textPrimary = Color(0xFFFFFFFF); // White
+  static const Color textSecondary = Color(0xFFA0A4AD); // Grey
   static const Color textTertiary = Color(0xFF6B7080);
-  static const Color textInverse = Color(0xFF0B0C10);
+  static const Color textInverse = Color(0xFF000000);
 
   // Border
-  static const Color borderSubtle = Color(0x14FFFFFF);
+  static const Color borderSubtle = Color(0x1AFFFFFF);
   static const Color borderActive = Color(0x80D4AF37);
 
   // Gold Accent
@@ -27,7 +27,7 @@ class AppColors {
   static const Color goldShimmer = Color(0x26D4AF37);
 
   // Status
-  static const Color success = Color(0xFF34D399);
+  static const Color success = Color(0xFF34D399); // Green
   static const Color warning = Color(0xFFFBBF24);
   static const Color error = Color(0xFFF87171);
   static const Color info = Color(0xFF60A5FA);
