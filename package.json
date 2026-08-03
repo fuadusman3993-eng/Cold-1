@@ -1,0 +1,12 @@
+{
+  "name": "ethiodrive-root",
+  "private": true,
+  "scripts": {
+    "install": "cd server && npm install",
+    "build": "cd server && npx prisma generate && npm run build",
+    "start": "cd server && npm run start:prod"
+  },
+  "engines": {
+    "node": "20.x"
+  }
+}
