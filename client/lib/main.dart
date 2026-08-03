@@ -4,8 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
 import 'package:ethiodrive/core/router/app_router.dart';
 
+import 'package:ethiodrive/core/di/injection.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await initDi();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

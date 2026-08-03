@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
 import 'package:ethiodrive/core/widgets/listing_card.dart';
 import 'package:ethiodrive/features/listing/domain/models/listing_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../../core/di/injection.dart';
+import '../bloc/home_cubit.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -32,7 +35,7 @@ class _HomePageState extends State<HomePage> {
   void _startHeroAutoPlay() {
     _heroTimer = Timer.periodic(const Duration(seconds: 5), (timer) {
       if (_heroController.hasClients) {
-        final nextIndex = (_currentHeroIndex + 1) % 3; // Assume 3 featured items
+        final nextIndex = (_currentHeroIndex + 1) % 3;
         _heroController.animateToPage(
           nextIndex,
           duration: const Duration(milliseconds: 800),
@@ -44,26 +47,50 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgPrimary, // Pure Black
+    return BlocProvider(
+      create: (context) => getIt<HomeCubit>()..fetchHomeData(),
+      child: Scaffold(
+        backgroundColor: AppColors.bgPrimary,
       body: SafeArea(
-        child: CustomScrollView(
-          physics: const BouncingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(child: _buildHeader()),
-            SliverToBoxAdapter(child: _buildSearchBar()),
-            SliverToBoxAdapter(child: _buildCategories()),
-            SliverToBoxAdapter(child: _buildHeroBanner()),
-            _buildSection('Recommended For You', mockListings.take(4).toList()),
-            _buildSection('Trending', mockListings.skip(1).take(4).toList()),
-            _buildSection('Luxury Collection', mockListings.where((l) => l.price > 4000000).toList()),
-            _buildSection('Recently Added', mockListings.reversed.take(4).toList()),
-            _buildSection('Nearby Cars', mockListings.take(4).toList()),
-            _buildSection('Verified Dealers', mockListings.where((l) => l.isVerified).toList()),
-            const SliverToBoxAdapter(child: SizedBox(height: 120)), // Space for bottom nav & FAB
-          ],
+        child: RefreshIndicator(
+          onRefresh: () => context.read<HomeCubit>().fetchHomeData(),
+          color: AppColors.goldPrimary,
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverToBoxAdapter(child: _buildHeader()),
+              SliverToBoxAdapter(child: _buildSearchBar()),
+              SliverToBoxAdapter(child: _buildCategories()),
+              BlocBuilder<HomeCubit, HomeState>(
+                builder: (context, state) {
+                  if (state is HomeLoading) {
+                    return const SliverFillRemaining(
+                      child: Center(child: CircularProgressIndicator(color: AppColors.goldPrimary)),
+                    );
+                  } else if (state is HomeError) {
+                    return SliverFillRemaining(
+                      child: Center(child: Text(state.message, style: const TextStyle(color: AppColors.error))),
+                    );
+                  } else if (state is HomeLoaded) {
+                    return SliverList(
+                      delegate: SliverChildListDelegate([
+                        _buildHeroBanner(),
+                        _buildSection('Recommended For You', state.recommended),
+                        _buildSection('Featured Cars', state.featured),
+                        _buildSection('Luxury Collection', state.luxury),
+                        _buildSection('Recently Added', state.recent),
+                        const SizedBox(height: AppSpacing.s48),
+                      ]),
+                    );
+                  }
+                  return const SliverToBoxAdapter(child: SizedBox());
+                },
+              ),
+            ],
+          ),
         ),
       ),
+    ),
     );
   }
 
