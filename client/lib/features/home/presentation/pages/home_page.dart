@@ -360,20 +360,6 @@ class _HomeViewState extends State<_HomeView> {
 
 
 
-  // ── SEARCH BAR ────────────────────────────────────────────────────────────────
-
-
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: const Icon(Icons.tune_rounded,
-                  color: Colors.black, size: 22),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showFilterSheet(BuildContext ctx) {
     showModalBottomSheet(
       context: ctx,

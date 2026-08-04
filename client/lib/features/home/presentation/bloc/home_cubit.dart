@@ -73,14 +73,10 @@ class HomeCubit extends Cubit<HomeState> {
           recent: results[3],
         ));
       }
-    } catch (_) {
-      // On any network error, show mock data (offline-first approach)
-      emit(HomeLoaded(
-        recommended: mockListings,
-        featured: mockListings.where((l) => l.isFeatured).toList(),
-        luxury: mockListings.where((l) => l.price > 4000000).toList(),
-        recent: mockListings.reversed.toList(),
-      ));
+    } catch (e) {
+      // If there's a network error (e.g. no internet), show the error state
+      // so the user knows they are offline.
+      emit(const HomeError('No internet connection. Please check your network and try again.'));
     }
   }
 }
