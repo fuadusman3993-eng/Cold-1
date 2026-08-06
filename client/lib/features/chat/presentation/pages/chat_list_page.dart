@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:ethiodrive/core/theme/app_colors.dart';
 import 'package:ethiodrive/core/theme/app_spacing.dart';
 
@@ -54,7 +55,11 @@ class ChatListPage extends StatelessWidget {
                 ),
               ],
             ),
-            onTap: () {},
+            onTap: () {
+              // Navigate to the chat detail page
+              // Since this is mock data, we just use a dummy ID '1'
+              context.push('/chat/1');
+            },
           );
         },
       ),
