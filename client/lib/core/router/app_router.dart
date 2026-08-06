@@ -25,14 +25,24 @@ class AppRouter {
       GoRoute(path: '/login', builder: (ctx, state) => const LoginPage()),
       GoRoute(path: '/otp', builder: (ctx, state) => OtpVerificationPage(phone: state.extra as String? ?? '')),
       GoRoute(path: '/complete-profile', builder: (ctx, state) => const ProfileCompletionPage()),
-      ShellRoute(
-        builder: (ctx, state, child) => MainShell(child: child),
-        routes: [
-          GoRoute(path: '/home', builder: (ctx, state) => const HomePage()),
-          GoRoute(path: '/search', builder: (ctx, state) => const SearchPage()),
-          GoRoute(path: '/sell', builder: (ctx, state) => const CreateListingPage()),
-          GoRoute(path: '/chat', builder: (ctx, state) => const ChatListPage()),
-          GoRoute(path: '/profile', builder: (ctx, state) => const ProfilePage()),
+      StatefulShellRoute.indexedStack(
+        builder: (ctx, state, navigationShell) => MainShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/home', builder: (ctx, state) => const HomePage())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/search', builder: (ctx, state) => const SearchPage())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/sell', builder: (ctx, state) => const CreateListingPage())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/chat', builder: (ctx, state) => const ChatListPage())],
+          ),
+          StatefulShellBranch(
+            routes: [GoRoute(path: '/profile', builder: (ctx, state) => const ProfilePage())],
+          ),
         ],
       ),
       GoRoute(path: '/listing/:id', builder: (ctx, state) => ListingDetailPage(listingId: state.pathParameters['id']!)),

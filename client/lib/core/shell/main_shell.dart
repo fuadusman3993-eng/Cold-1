@@ -5,28 +5,29 @@ import 'package:ethiodrive/core/theme/app_colors.dart';
 import 'package:ethiodrive/features/ai/presentation/widgets/ai_assistant_widget.dart';
 
 class MainShell extends StatelessWidget {
-  final Widget child;
-  const MainShell({super.key, required this.child});
+  final StatefulNavigationShell navigationShell;
+  const MainShell({super.key, required this.navigationShell});
 
-  int _selectedIndex(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
-    if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/search')) return 1;
-    if (location.startsWith('/sell')) return 2;
-    if (location.startsWith('/chat')) return 3;
-    if (location.startsWith('/profile')) return 4;
-    return 0;
+  void _goBranch(int index, BuildContext context) {
+    if (index == 2) { // sell
+      context.go('/sell');
+      return;
+    }
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final idx = _selectedIndex(context);
+    final idx = navigationShell.currentIndex;
     final mq = MediaQuery.of(context);
     final isDesktop = mq.size.width >= 800;
 
     return Scaffold(
       backgroundColor: AppColors.bgPrimary,
-      body: isDesktop ? _buildDesktopLayout(context, idx, child) : child,
+      body: isDesktop ? _buildDesktopLayout(context, idx, navigationShell) : navigationShell,
       bottomNavigationBar:
           isDesktop ? null : _buildBottomNav(context, idx, mq),
     );
@@ -61,12 +62,7 @@ class MainShell extends StatelessWidget {
       selectedIndex: (idx == 2) ? null : idx,
       onDestinationSelected: (i) {
         HapticFeedback.selectionClick();
-        switch (i) {
-          case 0: ctx.go('/home'); break;
-          case 1: ctx.go('/search'); break;
-          case 3: ctx.go('/chat'); break;
-          case 4: ctx.go('/profile'); break;
-        }
+        _goBranch(i, ctx);
       },
       selectedLabelTextStyle: const TextStyle(
           color: AppColors.goldPrimary, fontWeight: FontWeight.w700, fontSize: 12),
@@ -165,7 +161,7 @@ class MainShell extends StatelessWidget {
                       isActive: idx == 0,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        ctx.go('/home');
+                        _goBranch(0, ctx);
                       },
                     ),
                   ),
@@ -177,7 +173,7 @@ class MainShell extends StatelessWidget {
                       isActive: idx == 1,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        ctx.go('/search');
+                        _goBranch(1, ctx);
                       },
                     ),
                   ),
@@ -191,7 +187,7 @@ class MainShell extends StatelessWidget {
                       isActive: idx == 3,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        ctx.go('/chat');
+                        _goBranch(3, ctx);
                       },
                     ),
                   ),
@@ -203,7 +199,7 @@ class MainShell extends StatelessWidget {
                       isActive: idx == 4,
                       onTap: () {
                         HapticFeedback.selectionClick();
-                        ctx.go('/profile');
+                        _goBranch(4, ctx);
                       },
                     ),
                   ),
