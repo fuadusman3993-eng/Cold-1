@@ -9,27 +9,31 @@ datasource db {
 }
 
 model User {
-  id                String    @id @default(uuid())
-  phone             String?   @unique
-  email             String?   @unique
+  id                String     @id @default(uuid())
+  phone             String?    @unique
+  email             String?    @unique
   fullName          String?
   avatarUrl         String?
-  role              UserRole  @default(BUYER)
-  isProfileComplete Boolean   @default(false)
-  isVerified        Boolean   @default(false)
+  role              UserRole   @default(BUYER)
+  status            UserStatus @default(ACTIVE)
+  isProfileComplete Boolean    @default(false)
+  isVerified        Boolean    @default(false)
   city              String?
-  language          String    @default("en")
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  language          String     @default("en")
+  lastLoginAt       DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   listings          Listing[]
-  sentMessages      Message[] @relation("SentMessages")
-  chatsAsUser1      Chat[]    @relation("User1")
-  chatsAsUser2      Chat[]    @relation("User2")
-  offers            Offer[]   @relation("BuyerOffers")
+  sentMessages      Message[]  @relation("SentMessages")
+  chatsAsUser1      Chat[]     @relation("User1")
+  chatsAsUser2      Chat[]     @relation("User2")
+  offers            Offer[]    @relation("BuyerOffers")
   favorites         Favorite[]
   savedSearches     SavedSearch[]
   dealerProfile     DealerProfile?
+  auditLogs         AuditLog[]
+  notifications     Notification[]
 }
 
 enum UserRole {
@@ -37,7 +41,14 @@ enum UserRole {
   SELLER
   DEALER
   ADMIN
+  SUPER_ADMIN
   MODERATOR
+}
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
 }
 
 model Listing {
@@ -178,4 +189,37 @@ model DealerProfile {
   rating          Float    @default(0)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  adminId    String
+  admin      User     @relation(fields: [adminId], references: [id])
+  action     String   // e.g. APPROVE_LISTING, SUSPEND_USER, DELETE_LISTING
+  targetType String   // LISTING, USER, etc.
+  targetId   String
+  metadata   Json?    // extra info (old status, new status, reason)
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String             @id @default(uuid())
+  userId    String
+  user      User               @relation(fields: [userId], references: [id])
+  type      NotificationType
+  title     String
+  body      String             @db.Text
+  data      Json?              // extra payload (listingId, etc.)
+  isRead    Boolean            @default(false)
+  createdAt DateTime           @default(now())
+}
+
+enum NotificationType {
+  LISTING_APPROVED
+  LISTING_REJECTED
+  LISTING_SUBMITTED
+  LISTING_REPORTED
+  NEW_MESSAGE
+  OFFER_RECEIVED
+  SYSTEM
 }
